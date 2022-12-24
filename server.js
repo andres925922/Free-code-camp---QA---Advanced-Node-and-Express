@@ -8,6 +8,8 @@ const fccTesting = require('./freeCodeCamp/fcctesting.js');
 **/
 const session = require('express-session');
 const passport = require('passport');
+// The ObjectID class comes from the mongodb package. mongodb@~3.6.0 has already been added as a dependency
+const {ObjectID} = require('mongodb');
 
 const app = express();
 
@@ -61,6 +63,34 @@ app.route('/').get((req, res) => {
     }
   );
 });
+
+/**
+* To get the full user object, make a query search for a Mongo _id, as shown below:
+
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
+
+passport.deserializeUser((id, done) => {
+  myDataBase.findOne({ _id: new ObjectID(id) }, (err, doc) => {
+    done(null, null);
+  });
+});
+
+* Add the two functions above to your server.
+
+const { ObjectID } = require('mongodb');
+* The deserializeUser will throw an error until you set up the database connection. So, for now, comment out the myDatabase.findOne call, and just call done(null, null) in the deserializeUser callback function.
+**/
+passport.serializeUser( (user, done) => { //id, cb
+  done(null, user._id); // err, userId
+});
+
+passport.deserializeUser( (id, done) => { // id, cb
+  done(null, null);
+})
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

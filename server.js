@@ -130,10 +130,16 @@ myDB(async cliente => {
   /**
   * pass ensureAuthenticated as middleware to requests for the profile page before the argument to the GET request
   */
+  /**
+  *Pass an object containing the property username and value of req.user.username as the second argument for the render method of the profile view.
+  */
   app
     .route('/profile')
     .get(ensureAuthenticated, (req, res) => {
-      res.render('profile');
+      res.render(
+        'profile', 
+        { username: req.user.username}
+      );
     });
   
   // Serialization methods.

@@ -10,6 +10,8 @@ const session = require('express-session');
 const passport = require('passport');
 // The ObjectID class comes from the mongodb package. mongodb@~3.6.0 has already been added as a dependency
 const {ObjectID} = require('mongodb');
+// Add it to your server as follows:
+const LocalStrategy = require('passport-local');
 
 const app = express();
 
@@ -59,16 +61,34 @@ myDB(async cliente => {
   const DB = await cliente.db('Cluster1').collection('users');
   
   app.route('/').get((req, res) => {
+    /**
+    * In the res.render for that page, add a new variable to the object, 
+    showLogin: true. When you refresh your page, you should then see the form! This form is set up to POST on /login. 
+    So, this is where you should set up to accept the POST request and authenticate the user.
+    **/
     res.render('index', 
       {
       title: 'Connected to Database',
-      message: 'Please log in'
+      message: 'Please log in',
+      showLogin: ''
       }
     );
   });
   
-  // Serialization methods.
+  // Tell passport to use the instance of LocalStrategy
+  passport.use( new LocalStrategy( (username, password, callback) => {
+    DB.findOne( {
+      username: username
+    }, (err, user) => {
+      console.log(`User ${username} attemped to log in`);
+      if(err) return callback(err);
+      if(!user) return callback(null, false);
+      if(password !== user.password) return callback(null, false);
+      return callback(null, false);
+    });
+  }));
   
+  // Serialization methods.
   passport.serializeUser( (user, done) => { //id, cb
     done(null, user._id); // err, userId
   });

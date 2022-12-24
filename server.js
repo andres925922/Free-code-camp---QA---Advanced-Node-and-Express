@@ -54,15 +54,48 @@ app.use('/public', express.static(process.cwd() + '/public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.route('/').get((req, res) => {
-
-  res.render('index', 
-    {
-    title: 'Hello',
-    message: 'Please log in'
-    }
-  );
+myDB(async cliente => {
+  
+  const DB = await cliente.db('Cluster1').collection('users');
+  
+  app.route('/').get((req, res) => {
+    res.render('index', 
+      {
+      title: 'Connected to Database',
+      message: 'Please log in'
+      }
+    );
+  });
+  
+passport.serializeUser( (user, done) => { //id, cb
+  done(null, user._id); // err, userId
 });
+
+passport.deserializeUser( (id, done) => { // id, cb
+  DB.findOne({
+    _id
+  })
+  done(null, null);
+})
+  
+}).catch( err => {
+  app.route('/').get((req, res) => {
+    res.render('index', 
+      {
+      title: err,
+      message: 'Unable to connect'
+      }
+    );
+  });  
+})
+// app.route('/').get((req, res) => {
+//   res.render('index', 
+//     {
+//     title: 'Hello',
+//     message: 'Please log in'
+//     }
+//   );
+// });
 
 /**
 * To get the full user object, make a query search for a Mongo _id, as shown below:
@@ -82,13 +115,13 @@ passport.deserializeUser((id, done) => {
 const { ObjectID } = require('mongodb');
 * The deserializeUser will throw an error until you set up the database connection. So, for now, comment out the myDatabase.findOne call, and just call done(null, null) in the deserializeUser callback function.
 **/
-passport.serializeUser( (user, done) => { //id, cb
-  done(null, user._id); // err, userId
-});
+// passport.serializeUser( (user, done) => { //id, cb
+//   done(null, user._id); // err, userId
+// });
 
-passport.deserializeUser( (id, done) => { // id, cb
-  done(null, null);
-})
+// passport.deserializeUser( (id, done) => { // id, cb
+//   done(null, null);
+// })
 
 
 

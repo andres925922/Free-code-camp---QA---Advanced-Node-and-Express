@@ -36,9 +36,6 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-* After you do all that, tell your express app to use passport.initialize() and passport.session().
-* Be sure to add SESSION_SECRET to your .env file, and give it a random value. This is used to compute the hash used to encrypt your cookie!
-
 **/
 
 app.use(session({
@@ -47,7 +44,10 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false}
 }));
-
+/**
+* After you do all that, tell your express app to use passport.initialize() and passport.session().
+* Be sure to add SESSION_SECRET to your .env file, and give it a random value. This is used to compute the hash used to encrypt your cookie!
+**/
 passport.initialize()
 passport.session()
 
@@ -70,7 +70,7 @@ myDB(async cliente => {
       {
       title: 'Connected to Database',
       message: 'Please log in',
-      showLogin: ''
+      showLogin: true
       }
     );
   });
@@ -87,6 +87,32 @@ myDB(async cliente => {
       return callback(null, false);
     });
   }));
+  
+  /**
+  * For this challenge, you should add the route /login to accept a POST request. 
+  To authenticate on this route, you need to add a middleware to do so before then sending a response. 
+  This is done by just passing another argument with the middleware before with your response. 
+  The middleware to use is passport.authenticate('local').
+  **/
+  app
+    .route('/login')
+    .post( 
+      passport.authenticate('local', {failureRedirect: '/'}), //middleware
+      (req, res) => { // endpoint callback
+        res.redirect('/profile');
+      }
+    );
+  
+  /**
+  * passport.authenticate can also take some options as an argument such as { failureRedirect: '/' } which is incredibly useful, so be sure to add that in as well. 
+  Add a response after using the middleware (which will only be called if the authentication middleware passes) that redirects the user to /profile. 
+  Add that route, as well, and make it render the view profile.pug.
+  **/
+  app
+    .route('/profile')
+    .get( (req, res) => {
+      res.render('profile');
+    });
   
   // Serialization methods.
   passport.serializeUser( (user, done) => { //id, cb

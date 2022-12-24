@@ -141,6 +141,27 @@ myDB(async cliente => {
         { username: req.user.username}
       );
     });
+  /**
+  In passport, unauthenticating a user is as easy as just calling req.logout() before redirecting. 
+  Add this /logout route to do that:
+  */
+  app
+    .route('/logout')
+    .get((req, res) => {
+      req.logout();
+      res.redirect('/');
+  });
+  /**
+  You may have noticed that you are not handling missing pages (404). 
+  The common way to handle this in Node is with the following middleware. 
+  Go ahead and add this in after all your other routes
+  */
+  app.use( (req, res) => {
+    res
+      .status(404)
+      .type('text')
+      .send('Not found');
+  });
   
   // Serialization methods.
   passport.serializeUser( (user, done) => { //id, cb

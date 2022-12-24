@@ -5,7 +5,7 @@ const myDB = require('./connection');
 const fccTesting = require('./freeCodeCamp/fcctesting.js');
 /**
 * First, create the variables session and passport to require express-session and passport respectively.
-**/
+*/
 const session = require('express-session');
 const passport = require('passport');
 // The ObjectID class comes from the mongodb package. mongodb@~3.6.0 has already been added as a dependency
@@ -22,9 +22,27 @@ const app = express();
 * This tells Express to render all views relative to that directory.
 * 3) After that, add another set method that sets the views property of your app to point to the ./views/pug directory. 
 * This tells Express to render all views relative to that directory.
-**/
+*/
 app.set('view engine', 'pug');
 app.set('views', './views/pug');
+
+// Middlewares
+
+/**
+* The challenge here is creating the middleware function ensureAuthenticated(req, res, next), which will check if a user is authenticated by calling Passport's isAuthenticated method on the request which checks if req.user is defined. 
+* If it is, then next() should be called. 
+* Otherwise, you can just respond to the request with a redirect to your homepage to login.
+*/
+const ensureAuthenticated = (req, res, callback) => {
+  /**
+  * Middleware that ensures that the user is authenticated when making request to the server
+  * If so, the function will excecute the callback, if not, the user will be redirected to /
+  */
+  if (req.isAuthenticated()){
+    return callback();
+  }
+  res.redirect('/');
+}
 
 /**
 * Then, set up your Express app to use the session by defining the following options:
@@ -36,7 +54,7 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-**/
+*/
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -47,7 +65,7 @@ app.use(session({
 /**
 * After you do all that, tell your express app to use passport.initialize() and passport.session().
 * Be sure to add SESSION_SECRET to your .env file, and give it a random value. This is used to compute the hash used to encrypt your cookie!
-**/
+*/
 passport.initialize()
 passport.session()
 
@@ -65,7 +83,7 @@ myDB(async cliente => {
     * In the res.render for that page, add a new variable to the object, 
     showLogin: true. When you refresh your page, you should then see the form! This form is set up to POST on /login. 
     So, this is where you should set up to accept the POST request and authenticate the user.
-    **/
+    */
     res.render('index', 
       {
       title: 'Connected to Database',
@@ -93,7 +111,7 @@ myDB(async cliente => {
   To authenticate on this route, you need to add a middleware to do so before then sending a response. 
   This is done by just passing another argument with the middleware before with your response. 
   The middleware to use is passport.authenticate('local').
-  **/
+  */
   app
     .route('/login')
     .post( 
@@ -103,14 +121,18 @@ myDB(async cliente => {
       }
     );
   
+  // profile endpoint
   /**
   * passport.authenticate can also take some options as an argument such as { failureRedirect: '/' } which is incredibly useful, so be sure to add that in as well. 
   Add a response after using the middleware (which will only be called if the authentication middleware passes) that redirects the user to /profile. 
   Add that route, as well, and make it render the view profile.pug.
-  **/
+  */
+  /**
+  * pass ensureAuthenticated as middleware to requests for the profile page before the argument to the GET request
+  */
   app
     .route('/profile')
-    .get( (req, res) => {
+    .get(ensureAuthenticated, (req, res) => {
       res.render('profile');
     });
   

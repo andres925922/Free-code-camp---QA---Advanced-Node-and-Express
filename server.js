@@ -67,16 +67,20 @@ myDB(async cliente => {
     );
   });
   
-passport.serializeUser( (user, done) => { //id, cb
-  done(null, user._id); // err, userId
-});
+  // Serialization methods.
+  
+  passport.serializeUser( (user, done) => { //id, cb
+    done(null, user._id); // err, userId
+  });
 
-passport.deserializeUser( (id, done) => { // id, cb
-  DB.findOne({
-    _id
-  })
-  done(null, null);
-})
+  passport.deserializeUser( (id, done) => { // id, cb
+    DB.findOne({
+      _id: new ObjectID(id)
+    }, (err, doc) => {
+      done(null, doc);
+    });
+    // done(null, null);
+  });
   
 }).catch( err => {
   app.route('/').get((req, res) => {

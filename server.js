@@ -186,10 +186,15 @@ myDB(async cliente => {
               next(null, doc.ops[0])
               
             }
-          ); //DB.insertOne
+          ); // !DB.insertOne
         }
-      ); //DB.findOne
-  })
+      ); // !DB.findOne
+    },
+    passport.authenticate('local', {failureRedirect: '/'}),
+    (req, res, next) => {
+      res.redirect('/profile');
+    }
+  ) // !.post
   
   
   

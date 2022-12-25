@@ -12,6 +12,8 @@ const passport = require('passport');
 const {ObjectID} = require('mongodb');
 // Add it to your server as follows:
 const LocalStrategy = require('passport-local');
+// Add BCrypt
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -106,7 +108,8 @@ myDB(async cliente => {
       console.log(`User ${username} attemped to log in`);
       if(err) return callback(err);
       if(!user) return callback(null, false);
-      if(password !== user.password) return callback(null, false);
+      // if(password !== user.password) return callback(null, false);
+      if(!bcrypt.compare)
       return callback(null, false);
     });
   }));
@@ -176,10 +179,15 @@ myDB(async cliente => {
           if (err) next(err); // Si error ejecutamos la siguiente función
           if (data) return res.redirect('/'); // Si el usuario existe redireccionamos a la página ppal
           // si el usuario no existe lo creamos
+          /**
+          Currently on your registration route, you insert a user's plaintext password into the database like so: password: req.body.password. 
+          Hash the passwords instead 
+          */
+          const hashed_pwd = bcrypt.hashSync(req.body.password, 12);
           DB.insertOne(
             {
               username: req.body.username,
-              password: req.body.password
+              password: hashed_pwd
             },
             (err, doc) => {
               if (err) res.redirect('/');

@@ -109,7 +109,7 @@ myDB(async cliente => {
       if(err) return callback(err);
       if(!user) return callback(null, false);
       // if(password !== user.password) return callback(null, false);
-      if(!bcrypt.compare)
+      if(!bcrypt.compareSync(password, user.password)) return callback(null, false);
       return callback(null, false);
     });
   }));

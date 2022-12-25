@@ -166,7 +166,30 @@ myDB(async cliente => {
   * If a user is returned, redirect back to home
   * If a user is not found and no errors occur, then insertOne into the database with the username and password. As long as no errors occur there, call next to go to step 2, authenticating the new user, which you already wrote the logic for in your POST /login route.
   */
-  
+  app
+    .route('/register')
+    .post( (req, res, next) => {
+      // Evaluamos si el usuario existe en la db
+      DB.findOne(
+        {username: req.body.username},
+        (err, data) => {
+          if (err) next(err); // Si error ejecutamos la siguiente función
+          if (data) return res.redirect('/'); // Si el usuario existe redireccionamos a la página ppal
+          // si el usuario no existe lo creamos
+          DB.insertOne(
+            {
+              username: req.body.username,
+              password: req.body.password
+            },
+            (err, doc) => {
+              if (err) res.redirect('/');
+              next(null, doc.ops[0])
+              
+            }
+          ); //DB.insertOne
+        }
+      ); //DB.findOne
+  })
   
   
   

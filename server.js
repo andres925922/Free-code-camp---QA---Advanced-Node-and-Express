@@ -84,11 +84,16 @@ myDB(async cliente => {
     showLogin: true. When you refresh your page, you should then see the form! This form is set up to POST on /login. 
     So, this is where you should set up to accept the POST request and authenticate the user.
     */
+    /**
+    * Now you need to allow a new user on your site to register an account. 
+    In the res.render for the home page add a new variable to the object passed along - showRegistration: true.
+    */
     res.render('index', 
       {
       title: 'Connected to Database',
       message: 'Please log in',
-      showLogin: true
+      showLogin: true,
+      showRegistration: true
       }
     );
   });
@@ -151,6 +156,20 @@ myDB(async cliente => {
       req.logout();
       res.redirect('/');
   });
+  
+  // Registration logic.
+  /**
+  The logic of step 1 should be as follows:
+
+  * Query database with findOne
+  * If there is an error, call next with the error
+  * If a user is returned, redirect back to home
+  * If a user is not found and no errors occur, then insertOne into the database with the username and password. As long as no errors occur there, call next to go to step 2, authenticating the new user, which you already wrote the logic for in your POST /login route.
+  */
+  
+  
+  
+  
   /**
   You may have noticed that you are not handling missing pages (404). 
   The common way to handle this in Node is with the following middleware. 

@@ -71,7 +71,11 @@ module.exports = function (app) {
   app.route("/_api/routes.js").get(function (req, res, next) {
     console.log("requested");
     fs.readFile(process.cwd() + "/routes.js", function (err, data) {
-      if (err) return next(err);
+      if (err){
+        console.log(err)
+        return next(err);
+      } 
+      console.log("Este pasa bien");
       res.send(data.toString());
     });
   });
@@ -79,7 +83,11 @@ module.exports = function (app) {
   app.route("/_api/auth.js").get(function (req, res, next) {
     console.log("requested");
     fs.readFile(process.cwd() + "/auth.js", function (err, data) {
-      if (err) return next(err);
+      if (err){
+        console.log(err)
+        return next(err);
+      } 
+      console.log("Este pasa bien");
       res.send(data.toString());
     });
   });

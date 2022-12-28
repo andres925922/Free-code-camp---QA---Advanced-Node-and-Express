@@ -75,7 +75,6 @@ module.exports = function (app) {
         console.log(err)
         return next(err);
       } 
-      console.log("Este pasa bien");
       res.send(data.toString());
     });
   });
@@ -87,7 +86,6 @@ module.exports = function (app) {
         console.log(err)
         return next(err);
       } 
-      console.log("Este pasa bien");
       res.send(data.toString());
     });
   });

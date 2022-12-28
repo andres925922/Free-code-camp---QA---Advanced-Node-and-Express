@@ -8,7 +8,8 @@ module.exports = (
     passport, 
     ObjectID, 
     LocalStrategy, 
-    bcrypt) => {
+    bcrypt, 
+    store) => {
 
     /**
     * Then, set up your Express app to use the session by defining the following options:
@@ -26,6 +27,7 @@ module.exports = (
         secret: process.env.SESSION_SECRET,
         resave: true,
         saveUninitialized: true,
+        key: store,
         cookie: { secure: false}
     }));
     /**
@@ -72,15 +74,39 @@ module.exports = (
     const githubClient = {
         clientID : process.env.GITHUB_CLIENT_ID,
         clientServer: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: 'https://sepia-dandy-yogurt.glitch.me'
+        callbackURL: 'http://localhost:3000/auth/github/callback'
     }
-
-    passport.use(
-        new GitHubStrategy(
-            githubClient, (accessToken, refreshToken, profile, callback) => {
+    // Not working yet
+    passport.use(new GitHubStrategy(
+            githubClient, (accessToken, refreshToken, profile, done) => {
+                console.log(profile);
+                DB.findOneANdUpdate(
+                    {id: profile.id},
+                    {},
+                    {
+                        $setOnInsert: {
+                            id: profile.id,
+                            name: profile.displayName || 'John Doe',
+                            photo: profile.photos[0].value || '',
+                            email: Array.isArray(profile.emails) ? profile.emails[0].value : 'No public email',
+                            created_on: new Date(),
+                            provider: profile.provider || ''
+                        },
+                        $set: {
+                            last_login: new Date()
+                        },
+                        $inc: {
+                            login_count: 1
+                        }
+                    },
+                    {upsert: true, new: true},
+                    (err, doc) => {
+                        if (err) console.log(err);
+                        return done(null, doc.value);
+                    }
+                );
                 console.log(profile);
             }
-        )
-    )
+        ));
 
 }

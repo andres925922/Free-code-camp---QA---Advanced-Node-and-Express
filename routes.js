@@ -131,7 +131,8 @@ module.exports  = (
     .get(
         passport.authenticate('github', {failureRedirect: '/'}),
         (req, res, next) => {
-            req.redirect('/profile');
+            res,session.user_id = req.user.id;
+            res.redirect('/chat');
         }
     );
 
@@ -146,6 +147,11 @@ module.exports  = (
         .type('text')
         .send('Not found');
     });
+
+    /**
+     * So, in your routes.js file, add a GET route pointing to /chat which makes use of ensureAuthenticated, and renders chat.pug, with { user: req.user } passed as an argument to the response.
+     * Now, alter your existing /auth/github/callback route to set the req.session.user_id = req.user.id, and redirect to /chat.
+     */
     
 
 }

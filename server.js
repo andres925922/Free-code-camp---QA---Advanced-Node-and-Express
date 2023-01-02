@@ -133,7 +133,12 @@ myDB(async client => {
 
     io.on('connection', (socket) => {
       ++currentUsers;
-      io.emit('user count', currentUsers);
+      // io.emit('user count', currentUsers);
+      io.emit('user', {
+        username: socket.request.user.username,
+        currentUsers,
+        connected: true
+      });
       console.log('A user has connected');
 
       /**
@@ -148,7 +153,22 @@ myDB(async client => {
 
       socket.on('disconnect', () => {
         --currentUsers;
-        io.emit('user count', currentUsers);
+        // io.emit('user count', currentUsers);
+        io.emit('user', {
+          username: socket.request.user.username,
+          currentUsers,
+          connected: true
+        });
+      });
+
+      /**
+       * Now, on your server, you should be listening to the socket for the event 'chat message' with the data being named message. 
+       * Once the event is received, it should emit the event 'chat message' to all sockets using io.emit, sending a data object containing the username and message.
+       */
+
+      io.on('chat message', {
+        username: socket.request.user.username,
+        message: socket.request.message
       });
 
     });

@@ -76,13 +76,12 @@ module.exports = (
         clientServer: process.env.GITHUB_CLIENT_SECRET,
         callbackURL: 'http://localhost:3000/auth/github/callback'
     }
-    // Not working yet
+
     passport.use(new GitHubStrategy(
-            githubClient, (accessToken, refreshToken, profile, done) => {
+            githubClient, (accessToken, refreshToken, profile, cb) => {
                 console.log(profile);
-                DB.findOneANdUpdate(
+                DB.findOneAndUpdate(
                     {id: profile.id},
-                    {},
                     {
                         $setOnInsert: {
                             id: profile.id,
@@ -102,11 +101,43 @@ module.exports = (
                     {upsert: true, new: true},
                     (err, doc) => {
                         if (err) console.log(err);
-                        return done(null, doc.value);
+                        return cb(null, doc.value);
                     }
                 );
                 console.log(profile);
             }
         ));
+
+    // passport.use(new GitHubStrategy({
+    //     clientID: process.env.GITHUB_CLIENT_ID,
+    //     clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    //     callbackURL: 'http://localhost:3000/auth/github/callback'
+    //     },
+    //     function (accessToken, refreshToken, profile, cb) {
+    //       console.log(profile);
+    //       myDataBase.findAndModify(
+    //         { id: profile.id },
+    //         {},
+    //         {
+    //           $setOnInsert: {
+    //             id: profile.id,
+    //             name: profile.displayName || 'John Doe',
+    //             photo: profile.photos[0].value || '',
+    //             email: Array.isArray(profile.emails) ? profile.emails[0].value : 'No public email',
+    //             created_on: new Date(),
+    //             provider: profile.provider || ''
+    //           }, $set: {
+    //             last_login: new Date()
+    //           }, $inc: {
+    //             login_count: 1
+    //           }
+    //         },
+    //         { upsert: true, new: true },
+    //         (err, doc) => {
+    //           return cb(null, doc.value);
+    //         }
+    //       );
+    //     }
+    //   ));
 
 }
